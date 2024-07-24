@@ -1,0 +1,118 @@
+server:
+  workers: 1
+  node:
+    environment: production
+    dataDir: /data/trino
+    pluginDir: /usr/lib/trino/plugin
+  log:
+    trino:
+      level: INFO
+  config:
+    path: /etc/trino
+    http:
+      port: 8085
+    https:
+      enabled: false
+      port: 8443
+      keystore:
+        path: ""
+    # -- Trino supports multiple [authentication
+    # types](https://trino.io/docs/current/security/authentication-types.html):
+    # PASSWORD, CERTIFICATE, OAUTH2, JWT, KERBEROS.
+    authenticationType: PASSWORD
+    query:
+      maxMemory: "1GB"
+  exchangeManager:
+    name: "filesystem"
+    baseDir: "/tmp/trino-local-file-system-exchange-manager"
+  workerExtraConfig: "internal-communication.shared-secret=test"
+  coordinatorExtraConfig: "internal-communication.shared-secret=test"
+  autoscaling:
+    enabled: false
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 50
+    behavior: {}
+
+    # server.autoscaling.behavior -- Configuration for scaling up and down.
+    # @raw
+    # Example:
+    # ```yaml
+    #  scaleDown:
+    #    stabilizationWindowSeconds: 300
+    #    policies:
+    #    - type: Percent
+    #      value: 100
+    #      periodSeconds: 15
+    #  scaleUp:
+    #    stabilizationWindowSeconds: 0
+    #    policies:
+    #    - type: Percent
+    #      value: 100
+    #      periodSeconds: 15
+    #    - type: Pods
+    #      value: 4
+    #      periodSeconds: 15
+    #    selectPolicy: Max
+    # ```
+additionalCatalogs:
+  rdbms: |-
+    connector.name=postgresql
+    connection-url=jdbc:postgresql://my-postgres-postgresql.default.svc.cluster.local:5432/postgres
+    connection-user=postgres
+    connection-password=X0oXf8gXRc
+
+service:
+  annotations: {}
+  type: ClusterIP
+  port: 8085
+
+auth:
+  passwordAuth: "airflow_trino:$2y$10$lnwtVm0L4zeZuQxRT10adufayWt2DuZrB8F/OqVpy1aFCNgEt0Eau"
+
+# additionalConfigProperties: 
+# internal-communication.shared-secret=JjCPHTCqEwMTj+SUFuUdW7ZUZkyczj3f0cEaoLBmir83sfnS0rfR3ALKfxQkHULJegz8KcURZlEudOg24L7gRAD8LaNrBFMl7vZRZvN8Lnr7HXhZDEt8FoucMqUyBgIfJIVv87LNxiI+d3eJ0CaHqtZmGUYlNpQA57ke1hdFVSdHAaXs+So5tQ7vUDR/PoyHJaehcfbvOrV00haFzAORUwuhVw5VqJagpHz0ZyjLdG9iDUODXgHIqNPdwvTF7RPZWrv5MB/lnpuug1HwqjCUC7pb6rM3TJYfzqmWHfX0m5irLxyLElW6byJ9uY9eOFfyUU1VBrjnRNtI9TvxUuqhEWKojMjwVFqA+2YRteG+nnd9nC3fK5pk8TDOfSmOuSH1au9j5G8R6Ij0T6f0y8CHkVFIE3a8t3IBe4OFNOcAaQqALD+0HSsZ6bamnxQAs6TjO0jfSPXLGVZHGAFKN6/7eJA0+nA7mPpdw438rd/flZ6QXGsn8Lj4h4jvH5QCIAgI3yj0RInf9nNEFZ74zckwzZG6AaBwjzohuc5VN9R4ZUmtn7JDL8wWaUZMXnSQAiCYzPyGHlTAkesDlBJegYEOnpXqr7/d1MEZFPFFHzknH1NJ6P6/bvWmcZRprGwSrBsKKoHRkFaCqqMlRFCr4qX3w5ZnkPgfz+dVT7GO+aOukX0=
+
+# coordinator:
+#   jvm:
+#     maxHeapSize: "2G"
+#     gcMethod:
+#       type: "UseG1GC"
+#       g1:
+#         heapRegionSize: "32M"
+
+#   config:
+#     memory:
+#       heapHeadroomPerNode: ""
+#     query:
+#       maxMemoryPerNode: "1G"
+
+  # resources:
+  #   limits:
+  #     cpu: 500m
+  #     memory: 500Mi
+  #   requests:
+  #     cpu: 500m
+  #     memory: 500Mi
+
+
+# worker:
+#   jvm:
+#     maxHeapSize: "2G"
+#     gcMethod:
+#       type: "UseG1GC"
+#       g1:
+#         heapRegionSize: "32M"
+
+#   config:
+#     memory:
+#       heapHeadroomPerNode: ""
+#     query:
+#       maxMemoryPerNode: "1G"
+  
+  # resources:
+  #   limits:
+  #     cpu: 500m
+  #     memory: 500Mi
+  #   requests:
+  #     cpu: 500m
+  #     memory: 500Mi

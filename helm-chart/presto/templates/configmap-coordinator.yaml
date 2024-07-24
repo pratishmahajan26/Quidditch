@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-coordinator
+  labels:
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: coordinator
+    app.kubernetes.io/version: {{ .Values.image.tag | default .Chart.AppVersion | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  node.properties: |-
+    {{- with .Values.node.id }}
+    node.id={{ . }}
+    {{- end }}
+    node.location={{ .Values.node.location }}
+    node.environment={{ .Values.node.environment }}
+    node.data-dir={{ .Values.node.dataDir }}
+  jvm.config: |-
+    {{- if .Values.metrics.enabled }}
+    -javaagent:{{ .Values.metrics.javaagent }}={{ .Values.metrics.port }}:{{ .Values.home }}/etc/jmx_exporter.yaml
+    {{- end }}
+    {{- .Values.coordinator.jvm | default .Values.jvm | nindent 4 }}
+  config.properties: |-
+    coordinator=true
+    http-server.http.port={{ .Values.service.port }}
+    discovery.uri=http://{{ .Release.Name }}-discovery:{{ .Values.service.port }}
+    discovery-server.enabled={{ or (eq .Values.mode "single") (eq .Values.mode "cluster") }}
+    node-scheduler.include-coordinator={{ eq .Values.mode "single" }}
+    resource-manager-enabled={{ eq .Values.mode "ha-cluster" }}
+    {{- .Values.config | nindent 4 }}
+  log.properties: |-
+    {{- .Values.log | nindent 4 }}
+  {{- if .Values.resourceGroups.manager }}
+  resource-groups.properties: |-
+    resource-groups.configuration-manager={{ .Values.resourceGroups.manager }}
+    {{- if eq .Values.resourceGroups.manager "file" }}
+    resource-groups.config-file=etc/resource-groups.json
+    {{- else if eq .Values.resourceGroups.manager "db" }}
+    resource-groups.config-db-url={{ .Values.resourceGroups.db.url }}
+    resource-groups.max-refresh-interval={{ .Values.resourceGroups.db.maxRefreshInterval }}
+    resource-groups.exact-match-selector-enabled={{ .Values.resourceGroups.db.exactMatchSelectorEnabled }}
+    {{- end }}
+  {{- end }}
+  {{- if and (eq .Values.resourceGroups.manager "file") (not .Values.resourceGroups.file.fromConfigMap) }}
+  resource-groups.json: |-
+    {{- .Values.resourceGroups.file.config | nindent 4 }}
+  {{- end }}
+  {{- if .Values.metrics.enabled }}
+  jmx_exporter.yaml: |-
+    {{- toYaml .Values.metrics.config | nindent 4 }}
+  {{- end }}
