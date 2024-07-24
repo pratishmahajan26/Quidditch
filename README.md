@@ -1,4 +1,4 @@
-# Quidditch
+# Quidditch Setup on Local Machine
 ## Minikube:
 - brew install minikube
 - minikube start --cpus=6 --memory=8192
