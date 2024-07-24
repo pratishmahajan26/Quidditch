@@ -6,15 +6,16 @@ from datetime import datetime
 import pandas as pd
 import boto3
 
+
 def process_data(**context):
     task_instance = context['ti']
     query_results = task_instance.xcom_pull(task_ids='execute_query')
-    print(query_results)
 
     column_name = ['sale_id', 'sale_date', 'customer_name', 'product_name', 'quantity', 'price', 'total']
     df = pd.DataFrame(query_results, columns=column_name)
 
     df.to_csv('/tmp/processed_data.csv', index=False)
+
 
 dag = DAG(
     'presto_minio_workflow',

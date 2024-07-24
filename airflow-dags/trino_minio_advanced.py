@@ -1,14 +1,12 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.operators.dummy import DummyOperator
-from  airflow.operators.python import BranchPythonOperator
+from airflow.operators.python import BranchPythonOperator
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from airflow.providers.amazon.aws.transfers.local_to_s3 import LocalFilesystemToS3Operator
 from airflow.operators.email import EmailOperator
 from datetime import datetime, timedelta
 import pandas as pd
 import os
-
 from operators.validation_operator import DataValidationOperator
 
 
@@ -44,7 +42,6 @@ def notify_success(context):
 
 def check_validation(**context):
     validation_result = context['ti'].xcom_pull(task_ids='validate_data')
-    print(f"validation_result {validation_result}")
     if validation_result == 'success':
         return 'upload_to_minio'
     else:
@@ -93,14 +90,6 @@ upload_task = LocalFilesystemToS3Operator(
     dag=dag
 )
 
-# notify_success_task = EmailOperator(
-#     task_id='notify_success',
-#     to='recipient@example.com',
-#     subject='Workflow Completed Successfully',
-#     html_content='<p>The workflow has completed successfully. All tasks have been executed without errors.</p>',
-#     dag=dag
-# )
-
 notify_failure_task = EmailOperator(
     task_id='notify_failure',
     to='recipient@example.com',
@@ -115,25 +104,5 @@ check_validation_task = BranchPythonOperator(
     provide_context=True,
     dag=dag
 )
-
-
-# def choose_branch_notify(**context):
-#     file_path = context['task_instance'].xcom_pull(task_ids='upload_task')
-#     if os.path.getsize(file_path) > 0:
-#         return 'upload_to_minio'
-#     else:
-#         return 'dummy_failure'
-
-# branch_task_notify = BranchPythonOperator(
-#     task_id='branch_notify',
-#     python_callable=choose_branch_notify,
-#     provide_context=True,
-#     dag=dag
-# )
-
-# dummy_failure = DummyOperator(
-#     task_id='dummy_failure',
-#     dag=dag
-# )
 
 query_task >> process_task >> validate_task >> check_validation_task >> [upload_task, notify_failure_task]

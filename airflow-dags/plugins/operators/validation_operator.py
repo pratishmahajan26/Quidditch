@@ -12,7 +12,6 @@ class DataValidationOperator(BaseOperator):
 
     def execute(self, context):
         try:
-            print("DataValidationOperator execute")
             if not os.path.exists(self.input_file_path):
                 raise FileNotFoundError(f"Input file not found at {self.input_file_path}")
 
