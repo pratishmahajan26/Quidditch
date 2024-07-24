@@ -44,7 +44,7 @@
 - Visit http://127.0.0.1:8090 to use the application
 
 ## Minio
-- helm install --set resources.requests.memory=512Mi --set replicas=1 --set persistence.enabled=false --set mode=standalone --set rootUser=rootuser,rootPassword=rootpass123 --generate-name minio/minio
+- helm install minio --set resources.requests.memory=512Mi --set replicas=1 --set persistence.enabled=false --set mode=standalone --set rootUser=rootuser,rootPassword=rootpass123 minio/minio
 - To access MinIO from localhost, run the below commands:
   - export POD_NAME=$(kubectl get pods --namespace default -l "release=minio-1721640558" -o jsonpath="{.items[0].metadata.name}")
   - kubectl port-forward $POD_NAME 9000:9001 --namespace default
@@ -69,3 +69,9 @@
 - export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
 - kubectl --namespace default port-forward $POD_NAME 3000
 - Visit http://127.0.0.1:3000 to use the application
+
+## Get all helm releases
+- helm list
+
+## Uninstall
+- helm uninstall RELEASE_NAME -n default
