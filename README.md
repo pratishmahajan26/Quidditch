@@ -1,4 +1,6 @@
 # Quidditch Setup on Local Machine
+## Arch Diagram:
+- https://github.com/pratishmahajan26/quidditch/blob/main/architecture-diagram.jpg
 ## Minikube:
 - brew install minikube
 - minikube start --cpus=6 --memory=8192
