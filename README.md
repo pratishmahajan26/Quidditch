@@ -2,6 +2,7 @@
 ## Minikube:
 - brew install minikube
 - minikube start --cpus=6 --memory=8192
+- This command initializes a Minikube cluster with 3 nodes, 4 CPUs, and 8GB of RAM each.
 - minikube dashboard
 
 ## Helm:
@@ -10,7 +11,7 @@
 ## Airflow:
 - docker pull pratishmahajan26/airflow-trino:latest
 - cd quidditch/helm-chart
-- helm upgrade --install airflow ./airflow \
+- helm install airflow ./airflow \
  	 --set images.airflow.repository=pratishmahajan26/airflow-trino \
  	 --set images.airflow.tag=latest \
   	 --set images.airflow.pullPolicy=Always
