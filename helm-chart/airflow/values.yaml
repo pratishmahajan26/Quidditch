@@ -565,7 +565,7 @@ workers:
     cooldownPeriod: 30
 
     # Minimum number of workers created by keda
-    minReplicaCount: 0
+    minReplicaCount: 3
 
     # Maximum number of workers created by keda
     maxReplicaCount: 10
@@ -662,14 +662,10 @@ workers:
     #   cpu: 100m
     #   memory: 128Mi
 
-
-  resources: {}
-  #  limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  #  requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+  resources:
+     requests:
+       cpu: 100m
+       memory: 500Mi
 
   # Grace period for tasks to finish after SIGTERM is sent from kubernetes
   terminationGracePeriodSeconds: 600
@@ -744,13 +740,13 @@ workers:
     args: ["bash", "/clean-logs"]
     # Number of days to retain logs
     retentionDays: 15
-    resources: {}
+    resources:
     #  limits:
     #   cpu: 100m
     #   memory: 128Mi
-    #  requests:
-    #   cpu: 100m
-    #   memory: 128Mi
+      requests:
+       cpu: 100m
+       memory: 128Mi
     # Detailed default security context for logGroomerSidecar for container level
     securityContexts:
       container: {}
