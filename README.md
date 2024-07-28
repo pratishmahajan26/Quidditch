@@ -73,6 +73,13 @@
 - kubectl --namespace default port-forward $POD_NAME 3000
 - Visit http://127.0.0.1:3000 to use the application
 
+## Minikube Dashboard
+- minikube dashboard
+- It will automatically open a new tab on the browser
+- Enable & disable Metrics Server:
+- minikube addons enable metrics-server 
+- minikube addons disable metrics-server
+
 ## Get all helm releases
 - helm list
 
