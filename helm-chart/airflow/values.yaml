@@ -602,7 +602,7 @@ workers:
     minReplicaCount: 1
 
     # Maximum number of workers created by HPA
-    maxReplicaCount: 3
+    maxReplicaCount: 1
 
     # Specifications for which to use to calculate the desired replica count
     metrics:

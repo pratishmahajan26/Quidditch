@@ -8,19 +8,29 @@ from datetime import datetime, timedelta
 import pandas as pd
 import os
 from operators.validation_operator import DataValidationOperator
+from decimal import Decimal
 
 
 def process_data(**context):
     task_instance = context['ti']
     query_results = task_instance.xcom_pull(task_ids='execute_query')
 
-    column_name = ['sale_id', 'sale_date', 'customer_name', 'product_name', 'quantity', 'price', 'total']
+    column_name = ['sale_id', 'sale_date', 'customer_name', 'product_name', 'category', 'quantity', 'price', 'discount',
+                   'region', 'sales_rep', 'total']
     df = pd.DataFrame(query_results, columns=column_name)
+    df['price'] = df['price'].apply(Decimal)
+    df['discount'] = df['discount'].apply(Decimal)
+    cost_multiplier = Decimal('0.8')
+    df['cost_per_product'] = cost_multiplier * df['price']
+    df['final_price'] = df['quantity'] * df['price'] - df['discount']
+    df['profit'] = df['final_price'] - (df['cost_per_product'] * df['quantity'])
+    print("\nSales Data with Profit:")
+    print(df.head())
 
     if df.empty:
         raise ValueError("No data returned from query.")
 
-    processed_path = '/tmp/processed_data.csv'
+    processed_path = '/tmp/data_with_profit.csv'
     df.to_csv(processed_path, index=False)
 
     return processed_path
@@ -54,7 +64,7 @@ dag = DAG(
     schedule_interval='@daily',
     catchup=False,
     default_args={
-        'retries': 3,
+        'retries': 0,
         'retry_delay': timedelta(minutes=5),
     }
 )
@@ -76,14 +86,14 @@ process_task = PythonOperator(
 
 validate_task = DataValidationOperator(
     task_id='validate_data',
-    input_file_path='/tmp/processed_data.csv',
+    input_file_path='/tmp/data_with_profit.csv',
     dag=dag
 )
 
 upload_task = LocalFilesystemToS3Operator(
     task_id='upload_to_minio',
-    filename='/tmp/processed_data.csv',
-    dest_key='processed_data/processed_data.csv',
+    filename='/tmp/data_with_profit.csv',
+    dest_key='processed_data/data_with_profit.csv',
     dest_bucket='minio-airflow',
     aws_conn_id='my_s3_conn',
     replace=True,

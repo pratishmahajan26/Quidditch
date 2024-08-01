@@ -10,7 +10,7 @@ server:
   config:
     path: /etc/trino
     http:
-      port: 8085
+      port: 8080
     https:
       enabled: false
       port: 8443
@@ -28,8 +28,8 @@ server:
   workerExtraConfig: "internal-communication.shared-secret=test"
   coordinatorExtraConfig: "internal-communication.shared-secret=test"
   autoscaling:
-    enabled: false
-    maxReplicas: 5
+    enabled: true
+    maxReplicas: 2
     targetCPUUtilizationPercentage: 50
     behavior: {}
 
@@ -59,12 +59,12 @@ additionalCatalogs:
     connector.name=postgresql
     connection-url=jdbc:postgresql://my-postgres-postgresql.default.svc.cluster.local:5432/postgres
     connection-user=postgres
-    connection-password=X0oXf8gXRc
+    connection-password=kZ1M64glmP
 
 service:
   annotations: {}
   type: ClusterIP
-  port: 8085
+  port: 8080
 
 auth:
   passwordAuth: "airflow_trino:$2y$10$lnwtVm0L4zeZuQxRT10adufayWt2DuZrB8F/OqVpy1aFCNgEt0Eau"
@@ -95,7 +95,7 @@ auth:
   #     memory: 500Mi
 
 
-# worker:
+worker:
 #   jvm:
 #     maxHeapSize: "2G"
 #     gcMethod:
@@ -109,10 +109,7 @@ auth:
 #     query:
 #       maxMemoryPerNode: "1G"
   
-  # resources:
-  #   limits:
-  #     cpu: 500m
-  #     memory: 500Mi
-  #   requests:
-  #     cpu: 500m
-  #     memory: 500Mi
+   resources:
+     requests:
+       cpu: 500m
+       memory: 500Mi

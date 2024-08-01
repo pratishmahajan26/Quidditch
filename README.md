@@ -3,7 +3,7 @@
 - https://github.com/pratishmahajan26/quidditch/blob/main/architecture-diagram.jpg
 ## Minikube:
 - brew install minikube
-- minikube start --cpus=6 --memory=8192
+- minikube start --cpus=6 --memory=8192 --nodes=1
 - This command initializes a Minikube cluster with 3 nodes, 4 CPUs, and 8GB of RAM each.
 - minikube dashboard
 
@@ -32,7 +32,8 @@
 ## Trino
 - cd quidditch/helm-chart
 - helm install -f trino/custom-values.yml trino ./trino
-- export POD_NAME=$(kubectl get pods --namespace default --selector "app.kubernetes.io/name=trino,app.kubernetes.io/instance=example-trino-cluster,app.kubernetes.io/component=coordinator" --output name)
+- FQDN: trino.default.svc.cluster.local
+- export POD_NAME=$(kubectl get pods --namespace default --selector "app.kubernetes.io/name=trino,app.kubernetes.io/instance=trino,app.kubernetes.io/component=coordinator" --output name)
 - echo $POD_NAME
 - kubectl port-forward $POD_NAME 8085:8085
 - Visit http://127.0.0.1:8085 to use the application
@@ -48,8 +49,9 @@
 
 ## Minio
 - helm install minio --set resources.requests.memory=512Mi --set replicas=1 --set persistence.enabled=false --set mode=standalone --set rootUser=rootuser,rootPassword=rootpass123 minio/minio
+- FQDN: trino.default.svc.cluster.local
 - To access MinIO from localhost, run the below commands:
-  - export POD_NAME=$(kubectl get pods --namespace default -l "release=minio-1721640558" -o jsonpath="{.items[0].metadata.name}")
+  - export POD_NAME=$(kubectl get pods --namespace default -l "release=minio" -o jsonpath="{.items[0].metadata.name}")
   - kubectl port-forward $POD_NAME 9000:9001 --namespace default
   - Access MinIO server on http://localhost:9000
 
